@@ -1,11 +1,11 @@
 CXXFLAGS=-Wall -g
 
-all: print_array #initializer_list
+all: examples
 
 #initializer_list: initializer_list.cpp
 #	g++ $(CXXFLAGS) $< -o $@
 
-print_array: print_array.cpp
+examples: examples.cpp
 	g++ $(CXXFLAGS) $< -o $@
 
 clean:
