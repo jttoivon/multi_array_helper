@@ -48,7 +48,7 @@ to_string(const std::vector<T>& v)
   return result.str();
 }
 
-template <typename T, long unsigned int N>
+template <typename T, size_t N>
 std::string
 to_string(const boost::array<T, N>& v)
 {
@@ -56,12 +56,14 @@ to_string(const boost::array<T, N>& v)
     return std::string("[]");
   std::ostringstream result;
   result << "[";
-  for (long unsigned int i=0; i < v.size()-1; ++i)
+  for (size_t i=0; i < v.size()-1; ++i)
     result << v[i] << ", ";
   result << v[v.size()-1] << "]";
 
   return result.str();
 }
+
+
 
 int main()
 {
@@ -69,53 +71,80 @@ int main()
   namespace mah = multi_array_helper;
   
   typedef  boost::multi_array<double, 2> array;
-  double values[] = {
+  typedef boost::multi_array<double, 2>::extent_range range;
+
+
+  // Some data from which to create multi arrays
+  double values1[] = {
     0, 1, 2,
     3, 4, 5 
   };
+  const int values_size1=sizeof(values1);
 
   double values2[2][3] = { {6,7,8},
 			   {9, 10, 11}
   };
+  const int values_size2=sizeof(values2);
 
   
-  const int values_size=6;
+  std::cout << "Testing multi array creation:\n";
+  std::cout << "-----------------------------\n";
+
   array A(boost::extents[2][3]);
-  //typedef boost::multi_array_types::index_range range;
-  typedef boost::multi_array<double, 2>::extent_range range;
+  A.assign(values1,values1+values_size1);
+  std::cout << "Array A:\n";
+  mah::info(A);
+  mah::print(std::cout, A);
+  printf("\n");
+
   array B(boost::extents[2][range(1,4)]);
-  A.assign(values,values+values_size);
-  B.assign(values,values+values_size);
+  B.assign(values1,values1+values_size1);
+  std::cout << "Array B:\n";
+  mah::info(B);
+  mah::print(std::cout, B);
+  printf("\n");
+
+
   array C(boost::extents[2][range(1,4)]);
   double* values3 = reinterpret_cast<double*>(values2);
-  C.assign(values3, values3+values_size);
-  boost::multi_array<double, 4> D(boost::extents[3][3][3][3]);
-  boost::multi_array<double, 1> A1(boost::extents[range(-1, 2)]);
-  
-  std::cout << "Array A:\n";
-  mah::print(std::cout, A);
+  C.assign(values3, values3+values_size2);
+  std::cout << "Array C:\n";
+  mah::info(C);
+  mah::print(std::cout, C);
+  printf("\n");
 
-  std::cout << "Array B:\n";
-  mah::print(std::cout, B);
 
+  std::cout << "Testing construct function:\n";
+  std::cout << "---------------------------\n";
   boost::multi_array<int, 1> B1 = mah::construct({4, 4, 5});
   std::cout << "Array B1:\n";
   mah::info(B1);
   mah::print(std::cout, B1);
+  printf("\n");
 
   boost::multi_array<int, 2> B2 = mah::construct({ {6,7,8},
-					       {9, 10, 11}});
+  					           {9, 10, 11}});
   std::cout << "Array B2:\n";
   mah::info(B2);
   mah::print(std::cout, B2);
+  printf("\n");
 
-  std::cout << "Array C:\n";
-  mah::print(std::cout, C);
 
+  boost::multi_array<double, 2> B3 = mah::construct(values2);
+  B3.reindex(boost::array<int, 2>({2, -5}));   // Set the index bases
+  std::cout << "Array B3:\n";
+  mah::info(B3);
+  mah::print(std::cout, B3);
+  printf("\n");
+
+  std::cout << "Testing printing high-dimensional array:\n";
+  std::cout << "----------------------------------------\n";
+  boost::multi_array<double, 4> D(boost::extents[3][3][3][3]);
   std::cout << "Array D:\n";
+  mah::info(D);
   mah::print(std::cout, D);
+  printf("\n");
 
-  mah::shape(std::cout, B);
 
   std::cout << "Testing sum algorithm:\n";
   std::cout << "----------------------\n";
@@ -150,25 +179,22 @@ int main()
   mah::info(array(mah::get_extents(A)));
   std::cout << std::endl;
 
-  std::cout << "Testing MA_FOREACH:\n";
+  std::cout << "Testing MAH_FOREACH:\n";
   std::cout << "--------------------\n";
+  boost::multi_array<double, 1> A1(boost::extents[range(-1, 2)]);
   printf("A1:\n");
   mah::info(A1);
-  MA_FOREACH1(i, A1) {
+  MAH_FOREACH1(i, A1) {
     printf("A1[%i]==%f\n", i, A1[i]);
   }
-  //for (auto it = A1.begin(); it != A1.end(); ++it)
-  //  ;
   printf("\n");
+  
   printf("A:\n");
   mah::info(A);
-  MA_FOREACH2(i, j, A) {
+  MAH_FOREACH2(i, j, A) {
     printf("A[%i, %i]==%f\n", i, j, A[i][j]);
   }
   printf("\n");
-  //for (auto it = A[0].begin(); it != A[0].end(); ++it)
-  //  ;
-  
 
   std::cout << "Testing iterators:\n";
   std::cout << "------------------\n";

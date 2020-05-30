@@ -223,12 +223,12 @@ template <typename T>
 boost::multi_array<T, 1>
 construct(std::initializer_list<T> L)
 {
-  for (T e : L) {
-    std::cout << e << ", ";
-  }
+  // for (T e : L) {
+  //   std::cout << e << ", ";
+  // }
   boost::multi_array<T, 1> A(boost::extents[L.size()]);
   A.assign(L.begin(), L.end());
-  info(A);
+  //info(A);
   return A;
 }
 
@@ -239,6 +239,17 @@ construct(const T (&L)[N1][N2])
 {
   size_t size = N1*N2;
   boost::multi_array<T, 2> A(boost::extents[N1][N2]);
+  const T* v = reinterpret_cast<const T*>(L);
+  A.assign(v, v + size);
+  return A;
+}
+
+template <typename T, size_t N1, size_t N2, size_t N3>
+boost::multi_array<T, 3>
+construct(const T (&L)[N1][N2][N3])
+{
+  size_t size = N1*N2*N3;
+  boost::multi_array<T, 3> A(boost::extents[N1][N2][N3]);
   const T* v = reinterpret_cast<const T*>(L);
   A.assign(v, v + size);
   return A;
@@ -258,9 +269,9 @@ template <typename Array>
 class iterator
 {
 public:
-  iterator(Array& a_, bool end=false) : a(a_), k(Array::dimensionality)
+  iterator(Array& a_, bool end=false) : a(a_)
   {
-    for (unsigned int i=0; i < k; ++i)
+    for (unsigned int i=0; i < Array::dimensionality; ++i)
       idx[i] = a.index_bases()[i];
     if (end)
       idx[0] = a.index_bases()[0] + a.shape()[0];   // this denotes an end iterator
@@ -300,7 +311,6 @@ public:
   
 private:
   Array& a;
-  const unsigned int& k;   // can I use an alias here?
   boost::array<typename Array::index, Array::dimensionality> idx;  //
 };
 
@@ -320,19 +330,19 @@ end(Array& a)
 
 // It is maybe easier to you the above iterator than these macros.
 // Helper macros to iterate all dimensions of a 1, 2, 3, or 4 dimensional multi array
-#define MA_FOREACH1(i1, container)                                                        \
+#define MAH_FOREACH1(i1, container)                                                        \
   for (int i1=container.index_bases()[0] ; i1 < container.index_bases()[0] + (int)container.shape()[0]; ++i1)
 
-#define MA_FOREACH2(i1, i2, container)					\
+#define MAH_FOREACH2(i1, i2, container)					\
   for (int i1=container.index_bases()[0] ; i1 < container.index_bases()[0] + (int)container.shape()[0]; ++i1) \
   for (int i2=container.index_bases()[1] ; i2 < container.index_bases()[1] + (int)container.shape()[1]; ++i2)
 
-#define MA_FOREACH3(i1, i2, i3, container)				\
+#define MAH_FOREACH3(i1, i2, i3, container)				\
   for (int i1=container.index_bases()[0] ; i1 < container.index_bases()[0] + (int)container.shape()[0]; ++i1) \
   for (int i2=container.index_bases()[1] ; i2 < container.index_bases()[1] + (int)container.shape()[1]; ++i2) \
   for (int i3=container.index_bases()[2] ; i3 < container.index_bases()[2] + (int)container.shape()[2]; ++i3)
 
-#define MA_FOREACH4(i1, i2, i3, i4, container)				\
+#define MAH_FOREACH4(i1, i2, i3, i4, container)				\
   for (int i1=container.index_bases()[0] ; i1 < container.index_bases()[0] + (int)container.shape()[0]; ++i1) \
   for (int i2=container.index_bases()[1] ; i2 < container.index_bases()[1] + (int)container.shape()[1]; ++i2) \
   for (int i3=container.index_bases()[2] ; i3 < container.index_bases()[2] + (int)container.shape()[2]; ++i3) \
