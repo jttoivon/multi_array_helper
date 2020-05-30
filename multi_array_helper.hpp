@@ -122,36 +122,6 @@ namespace detail {
   }
 }
   
-/*
-template <typename Array>
-std::string
-array_type(const Array& a)
-{
-  int status;
-  std::string name = get_type<Array>();
-  return std::string("Other: ") + name;
-}
-
-template <
-  typename ValueType, 
-  std::size_t NumDims, 
-  typename Allocator = std::allocator<ValueType> >
-std::string
-array_type(const boost::multi_array<ValueType, NumDims, Allocator>& a)
-{
-  typedef boost::multi_array<ValueType, NumDims, Allocator> Array;
-  return std::string("multi_array") + get_type<Array>();
-}
-
-template <
-  typename ValueType, 
-  std::size_t NumDims>
-std::string
-array_type(const typename boost::detail::multi_array::sub_array<ValueType, NumDims>& a)
-{
-  return "subarray";
-}
-*/
 
 
 template <typename Array>
